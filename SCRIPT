@@ -1,6 +1,6 @@
 -- OPEN SOURCE ESP SCRIPT CREATED BY 4LAYY
--- HAS BOX ESP, CHAMS, TRACERS, SKELETON, AND HEALTH BAR
--- WILL UPDATE WITH MORE FEATURES POSSIBLY
+-- HAS BOX ESP, CHAMS, TRACERS, AND SKELETON
+-- WILL UPDATE WITH MORE FEATURES LIKE HEALTH BAR, ETC
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -597,4 +597,7 @@ HealthBarToggle.MouseButton1Click:Connect(function()
     if not healthBarEnabled then
         for plr, healthBar in pairs(healthBars) do
             healthBar.background.Visible = false
-            healthBar.health.V
+            healthBar.health.Visible = false
+        end
+    end
+end)
