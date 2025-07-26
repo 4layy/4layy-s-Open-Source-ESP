@@ -73,7 +73,7 @@ end
 
 -- CREATE BEAM TRACER
 local function createBeam(plr)
-    -- Clean old beam data if exists
+    -- CLEAN OLD BEAM DATA IF EXISTS
     if beamTracers[plr] then
         local oldData = beamTracers[plr]
         if oldData.Beam then
@@ -140,7 +140,7 @@ local function createSkeleton(plr)
     
     skeletons[plr] = {}
     
-    -- CREATE LINES FOR SKEL
+    -- CREATE LINES FOR FULL R15 SKELETON
     local connections = {
         "Head-UpperTorso", "UpperTorso-LowerTorso", 
         "UpperTorso-LeftUpperArm", "LeftUpperArm-LeftLowerArm", "LeftLowerArm-LeftHand",
@@ -160,14 +160,14 @@ local function updateSkeleton(plr)
     
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid or humanoid.RigType ~= Enum.HumanoidRigType.R15 then 
-        -- SKELETON EXCLUSIVE TO R15
+        -- ONLY SHOW SKELETON FOR R15 CHARACTERS
         for _, line in pairs(skeletons[plr]) do
             line.Visible = false
         end
         return 
     end
     
-    -- GET EVERY FUCKING R15 PART.
+    -- GET ALL R15 BODY PARTS
     local parts = {
         Head = character:FindFirstChild("Head"),
         UpperTorso = character:FindFirstChild("UpperTorso"),
@@ -238,7 +238,7 @@ end
 local function createHealthBar()
     local healthBar = {}
     
-    -- BLACK BG BAR
+    -- BLACK BACKGROUND BAR (SHOWS MAX HEALTH)
     healthBar.background = Drawing.new("Square")
     healthBar.background.Visible = false
     healthBar.background.Color = Color3.fromRGB(0, 0, 0)
@@ -246,7 +246,7 @@ local function createHealthBar()
     healthBar.background.Transparency = 1
     healthBar.background.Filled = true
     
-    -- HEALTH BAR
+    -- GREEN HEALTH BAR (SHOWS CURRENT HEALTH)
     healthBar.health = Drawing.new("Square")
     healthBar.health.Visible = false
     healthBar.health.Color = Color3.fromRGB(0, 255, 0)
@@ -277,23 +277,23 @@ local function updateHealthBar(plr)
     end
     
     local distance = math.clamp(rootPos.Z, 0.1, 1000)
-    local barHeight = (600 / distance) * 1.3 -- Smaller height (R6 torso size)
-    local barWidth = 6 -- Smaller width
-    local backgroundWidth = 8 -- Slightly bigger for stroke effect
+    local barHeight = (600 / distance) * 1.3 -- SMALLER HEIGHT (R6 TORSO SIZE)
+    local barWidth = 6 -- SMALLER WIDTH
+    local backgroundWidth = 8 -- SLIGHTLY BIGGER FOR STROKE EFFECT
     
-    -- POSITION BAR TO LEFT
-    local barX = rootPos.X - (barHeight * 1.0 / 2) - backgroundWidth - 10 -- 10 pixels left of box
+    -- POSITION TO THE LEFT OF THE PLAYER
+    local barX = rootPos.X - (barHeight * 1.0 / 2) - backgroundWidth - 10 -- 10 PIXELS LEFT OF BOX
     local barY = rootPos.Y - barHeight / 2
     
-    -- BLACK BG BAR FOR MISSING HEALTH
-    healthBars[plr].background.Size = Vector2.new(backgroundWidth, barHeight + 2) -- +2 for top/bottom stroke
-    healthBars[plr].background.Position = Vector2.new(barX - 1, barY - 1) -- -1 offset for stroke
+    -- BACKGROUND BAR (BLACK - SHOWS MAX HEALTH WITH STROKE EFFECT)
+    healthBars[plr].background.Size = Vector2.new(backgroundWidth, barHeight + 2) -- +2 FOR TOP/BOTTOM STROKE
+    healthBars[plr].background.Position = Vector2.new(barX - 1, barY - 1) -- -1 OFFSET FOR STROKE
     healthBars[plr].background.Visible = true
     
-    -- GREEN HEALTH BAR FOR CURRENT HEALTH
+    -- HEALTH BAR (GREEN - SHOWS CURRENT HEALTH)
     local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
     
-    -- If health is 0, don't show the health bar at all
+    -- IF HEALTH IS 0, DON'T SHOW THE HEALTH BAR AT ALL
     if healthPercent <= 0 then
         healthBars[plr].health.Visible = false
     else
@@ -303,13 +303,13 @@ local function updateHealthBar(plr)
         healthBars[plr].health.Position = Vector2.new(barX, barY + (barHeight - healthBarHeight))
         healthBars[plr].health.Visible = true
         
-        -- TUFF COLOR CODING FOR HEALTH BAR
+        -- COLOR CODING BASED ON HEALTH PERCENTAGE
         if healthPercent > 0.6 then
-            healthBars[plr].health.Color = Color3.fromRGB(0, 255, 0) -- Green
+            healthBars[plr].health.Color = Color3.fromRGB(0, 255, 0) -- GREEN
         elseif healthPercent > 0.3 then
-            healthBars[plr].health.Color = Color3.fromRGB(255, 255, 0) -- Yellow
+            healthBars[plr].health.Color = Color3.fromRGB(255, 255, 0) -- YELLOW
         else
-            healthBars[plr].health.Color = Color3.fromRGB(255, 0, 0) -- Red
+            healthBars[plr].health.Color = Color3.fromRGB(255, 0, 0) -- RED
         end
     end
 end
@@ -340,8 +340,8 @@ local function updateBoxes()
             local distance = math.clamp(rootPos.Z, 0.1, 1000)
 
             if onScreen then
-                local sizeY = (1500 / distance) * 1.3 -- taller
-                local sizeX = sizeY * 1.0             -- less wide
+                local sizeY = (1500 / distance) * 1.3 -- TALLER
+                local sizeX = sizeY * 1.0             -- LESS WIDE
 
                 box.Size = Vector2.new(sizeX, sizeY)
                 box.Position = Vector2.new(rootPos.X - sizeX / 2, rootPos.Y - sizeY / 2)
@@ -360,7 +360,6 @@ local function updateBoxes()
         else
             if boxes[plr] then
                 boxes[plr].Visible = false
-                boxes[plr] = nil -- remove so it doesn't linger
             end
         end
     end
@@ -449,7 +448,7 @@ MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Size = UDim2.new(0, 250, 0, 300)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- CENTERED on screen
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0) -- CENTERED ON SCREEN
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
@@ -501,7 +500,7 @@ ScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 -- BUTTONS
 local function createButton(text)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35) -- Full width minus padding
+    btn.Size = UDim2.new(1, 0, 0, 35) -- FULL WIDTH MINUS PADDING
     btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.SourceSansBold
@@ -522,7 +521,7 @@ ChamsToggle.Position = UDim2.new(0, 0, 0, 40)
 local TracerToggle = createButton("Toggle Tracers")
 TracerToggle.Position = UDim2.new(0, 0, 0, 80)
 
-local SkeletonToggle = createButton("Toggle Skeleton (R15)")
+local SkeletonToggle = createButton("Skeleton (R15)")
 SkeletonToggle.Position = UDim2.new(0, 0, 0, 120)
 
 local HealthBarToggle = createButton("Health Bar")
@@ -597,6 +596,174 @@ HealthBarToggle.MouseButton1Click:Connect(function()
     healthBarEnabled = not healthBarEnabled
     if not healthBarEnabled then
         for plr, healthBar in pairs(healthBars) do
+            healthBar.background.Visible = false
+            healthBar.health.Visible = false
+        end
+    else
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= player then
+                if not healthBars[plr] then
+                    healthBars[plr] = createHealthBar()
+                end
+            end
+        end
+    end
+end)
+
+-- MINIMIZE LOGIC
+local minimized = false
+MinimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    ScrollFrame.Visible = not minimized
+    MainFrame.Size = minimized and UDim2.new(0, 250, 0, 28) or UDim2.new(0, 250, 0, 300)
+end)
+
+-- CREATE BEAMS AND SKELETONS ON RESPAWN
+player.CharacterAdded:Connect(function()
+    wait(0.5)
+    if tracerEnabled then
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                createBeam(plr)
+            end
+        end
+    end
+    if skeletonEnabled then
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= player then
+                createSkeleton(plr)
+            end
+        end
+    end
+    if healthBarEnabled then
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= player then
+                if not healthBars[plr] then
+                    healthBars[plr] = createHealthBar()
+                end
+            end
+        end
+    end
+end)
+
+-- RECREATE BEAMS, HIGHLIGHTS, AND SKELETONS
+Players.PlayerAdded:Connect(function(plr)
+    if plr == player then return end
+    plr.CharacterAdded:Connect(function()
+        wait(0.5)
+        if tracerEnabled then
+            createBeam(plr)
+        end
+        if chamsEnabled then
+            addHighlight(plr)
+        end
+        if skeletonEnabled then
+            createSkeleton(plr)
+        end
+        if healthBarEnabled then
+            if not healthBars[plr] then
+                healthBars[plr] = createHealthBar()
+            end
+        end
+    end)
+end)
+
+-- CLEANUP WHEN PLAYERS LEAVE
+Players.PlayerRemoving:Connect(function(plr)
+    -- CLEAN UP BOXES
+    if boxes[plr] then
+        boxes[plr]:Remove()
+        boxes[plr] = nil
+    end
+    
+    -- CLEAN UP HIGHLIGHTS
+    removeHighlight(plr)
+    
+    -- CLEAN UP TRACERS
+    if beamTracers[plr] then
+        local data = beamTracers[plr]
+        if data.Beam then data.Beam:Destroy() end
+        if data.Attachment0 then data.Attachment0:Destroy() end
+        if data.Attachment1 then data.Attachment1:Destroy() end
+        beamTracers[plr] = nil
+    end
+    
+    -- CLEAN UP SKELETONS
+    removeSkeleton(plr)
+    
+    -- CLEAN UP HEALTH BARS
+    removeHealthBar(plr)
+end)
+
+-- FOR PLAYERS IN GAME ALREADY
+for _, plr in pairs(Players:GetPlayers()) do
+    if plr ~= player then
+        plr.CharacterAdded:Connect(function()
+            wait(0.5)
+            if tracerEnabled then
+                createBeam(plr)
+            end
+            if chamsEnabled then
+                addHighlight(plr)
+            end
+            if skeletonEnabled then
+                createSkeleton(plr)
+            end
+            if healthBarEnabled then
+                if not healthBars[plr] then
+                    healthBars[plr] = createHealthBar()
+                end
+            end
+        end)
+    end
+end
+
+-- LOOP UPDATE
+boxConnection = RunService.RenderStepped:Connect(function()
+    if boxESPEnabled then
+        updateBoxes()
+    else
+        for _, box in pairs(boxes) do
+            box.Visible = false
+        end
+    end
+end)
+
+chamsUpdateConnection = RunService.RenderStepped:Connect(function()
+    if chamsEnabled then
+        updateAllHighlights()
+    end
+end)
+
+tracerConnection = RunService.RenderStepped:Connect(function()
+    if tracerEnabled then
+        updateTracers()
+    else
+        for _, data in pairs(beamTracers) do
+            if data.Beam then
+                data.Beam.Enabled = false
+            end
+        end
+    end
+end)
+
+skeletonConnection = RunService.RenderStepped:Connect(function()
+    if skeletonEnabled then
+        updateSkeletons()
+    else
+        for _, skeletonLines in pairs(skeletons) do
+            for _, line in pairs(skeletonLines) do
+                line.Visible = false
+            end
+        end
+    end
+end)
+
+healthBarConnection = RunService.RenderStepped:Connect(function()
+    if healthBarEnabled then
+        updateHealthBars()
+    else
+        for _, healthBar in pairs(healthBars) do
             healthBar.background.Visible = false
             healthBar.health.Visible = false
         end
