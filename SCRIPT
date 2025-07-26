@@ -1,6 +1,6 @@
 -- OPEN SOURCE ESP SCRIPT CREATED BY 4LAYY
--- HAS BOX ESP, CHAMS, TRACERS, AND SKELETON
--- WILL UPDATE WITH MORE FEATURES LIKE HEALTH BAR, ETC
+-- HAS BOX ESP, CHAMS, TRACERS, SKELETON, AND HEALTH BAR
+-- WILL UPDATE WITH MORE FEATURES
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -140,7 +140,7 @@ local function createSkeleton(plr)
     
     skeletons[plr] = {}
     
-    -- CREATE LINES FOR R15 SKEL
+    -- CREATE LINES FOR SKEL
     local connections = {
         "Head-UpperTorso", "UpperTorso-LowerTorso", 
         "UpperTorso-LeftUpperArm", "LeftUpperArm-LeftLowerArm", "LeftLowerArm-LeftHand",
@@ -160,14 +160,14 @@ local function updateSkeleton(plr)
     
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid or humanoid.RigType ~= Enum.HumanoidRigType.R15 then 
-        -- ONLY SHOW SKEL FOR R15
+        -- SKELETON EXCLUSIVE TO R15
         for _, line in pairs(skeletons[plr]) do
             line.Visible = false
         end
         return 
     end
     
-    -- ALL R15 PARTS (fuckass game made me do all ts)
+    -- GET EVERY FUCKING R15 PART.
     local parts = {
         Head = character:FindFirstChild("Head"),
         UpperTorso = character:FindFirstChild("UpperTorso"),
@@ -238,7 +238,7 @@ end
 local function createHealthBar()
     local healthBar = {}
     
-    -- BLACK BACKGROUND BAR (shows a limit and a minimum)
+    -- BLACK BG BAR
     healthBar.background = Drawing.new("Square")
     healthBar.background.Visible = false
     healthBar.background.Color = Color3.fromRGB(0, 0, 0)
@@ -246,7 +246,7 @@ local function createHealthBar()
     healthBar.background.Transparency = 1
     healthBar.background.Filled = true
     
-    -- GREEN HEALTH BAR (actual health)
+    -- HEALTH BAR
     healthBar.health = Drawing.new("Square")
     healthBar.health.Visible = false
     healthBar.health.Color = Color3.fromRGB(0, 255, 0)
@@ -281,18 +281,19 @@ local function updateHealthBar(plr)
     local barWidth = 6 -- Smaller width
     local backgroundWidth = 8 -- Slightly bigger for stroke effect
     
-    -- POSITION BAR TO LEFT OF PLYR
+    -- POSITION BAR TO LEFT
     local barX = rootPos.X - (barHeight * 1.0 / 2) - backgroundWidth - 10 -- 10 pixels left of box
     local barY = rootPos.Y - barHeight / 2
     
-    -- BG BAR
+    -- BLACK BG BAR FOR MISSING HEALTH
     healthBars[plr].background.Size = Vector2.new(backgroundWidth, barHeight + 2) -- +2 for top/bottom stroke
     healthBars[plr].background.Position = Vector2.new(barX - 1, barY - 1) -- -1 offset for stroke
     healthBars[plr].background.Visible = true
     
-    -- HEALTH BAR
+    -- GREEN HEALTH BAR FOR CURRENT HEALTH
     local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
     
+    -- If health is 0, don't show the health bar at all
     if healthPercent <= 0 then
         healthBars[plr].health.Visible = false
     else
@@ -302,7 +303,7 @@ local function updateHealthBar(plr)
         healthBars[plr].health.Position = Vector2.new(barX, barY + (barHeight - healthBarHeight))
         healthBars[plr].health.Visible = true
         
-        -- COLOR CODING (tuff?)
+        -- TUFF COLOR CODING FOR HEALTH BAR
         if healthPercent > 0.6 then
             healthBars[plr].health.Color = Color3.fromRGB(0, 255, 0) -- Green
         elseif healthPercent > 0.3 then
