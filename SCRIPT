@@ -1,6 +1,6 @@
--- OPEN SOURCE ESP SCRIPT CREATED BY 4LAYY
--- HAS BOX ESP, CHAMS, TRACERS, SKELETON, AND HEALTH BAR
--- WILL UPDATE WITH MORE FEATURES
+-- OPEN SOURCE ESP BY 4LAYY <3
+-- BOX ESP, CHAMS, TRACERS, SKELETON, HEALTH BAR, NAMES
+-- MOBILE SUPPORTED
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -17,22 +17,24 @@ local highlights = {}
 local beamTracers = {}
 local skeletons = {}
 local healthBars = {}
+local nameLabels = {}
 
 local boxESPEnabled = false
 local chamsEnabled = false
 local tracerEnabled = false
 local skeletonEnabled = false
 local healthBarEnabled = false
-local teamFilterEnabled = false -- NEW: Team filter variable
+local nameESPEnabled = false
+local teamFilterEnabled = false
 
 local boxConnection
 local chamsUpdateConnection
 local tracerConnection
 local skeletonConnection
 local healthBarConnection
+local nameESPConnection
 
--- HELPER FUNC
-
+-- HELPER FUNCTIONS
 local function getPlayerColor(plr)
     local teamColor = (plr.Team and plr.Team.TeamColor.Color) or Color3.fromRGB(0, 255, 0)
     if teamColor == Color3.new(1, 1, 1) then
@@ -41,20 +43,20 @@ local function getPlayerColor(plr)
     return teamColor
 end
 
--- CHECK TEAMS FOR TEAM FILTER
+-- TEAM FILTER CHECK
 local function shouldShowPlayer(plr)
     if not teamFilterEnabled then
-        return true 
+        return true
     end
     
-    -- HIDE FRIENDLY WHEN ENABLED
     if player.Team and plr.Team then
-        return player.Team ~= plr.Team 
+        return player.Team ~= plr.Team
     else
-        return true -- Show if either player has no team
+        return true
     end
 end
 
+-- BOX ESP FUNCTIONS
 local function createBox()
     local box = Drawing.new("Square")
     box.Visible = false
@@ -65,10 +67,11 @@ local function createBox()
     return box
 end
 
+-- CHAMS FUNCTIONS
 local function addHighlight(plr)
     if highlights[plr] then return end
     if not plr.Character or not plr.Character.Parent then return end
-    if not shouldShowPlayer(plr) then return end -- NEW: Team filter check
+    if not shouldShowPlayer(plr) then return end
     
     local highlight = Instance.new("Highlight")
     highlight.Name = "ESPHighlight"
@@ -88,9 +91,8 @@ local function removeHighlight(plr)
     end
 end
 
--- CREATE BEAM TRACER
+-- TRACER FUNCTIONS
 local function createBeam(plr)
-    -- CLEAN OLD BEAM DATA IF EXISTS
     if beamTracers[plr] then
         local oldData = beamTracers[plr]
         if oldData.Beam then
@@ -107,7 +109,7 @@ local function createBeam(plr)
     local hrp = character:FindFirstChild("HumanoidRootPart")
     local localHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
     if not hrp or not localHRP then return nil end
-    if not shouldShowPlayer(plr) then return nil end -- NEW: Team filter check
+    if not shouldShowPlayer(plr) then return nil end
 
     local beamData = {}
 
@@ -158,7 +160,6 @@ local function createSkeleton(plr)
     
     skeletons[plr] = {}
     
-    -- CREATE LINES FOR FULL R15 SKELETON
     local connections = {
         "Head-UpperTorso", "UpperTorso-LowerTorso", 
         "UpperTorso-LeftUpperArm", "LeftUpperArm-LeftLowerArm", "LeftLowerArm-LeftHand",
@@ -175,7 +176,7 @@ end
 local function updateSkeleton(plr)
     local character = plr.Character
     if not character or not skeletons[plr] then return end
-    if not shouldShowPlayer(plr) then -- NEW: Team filter check
+    if not shouldShowPlayer(plr) then
         for _, line in pairs(skeletons[plr]) do
             line.Visible = false
         end
@@ -184,14 +185,12 @@ local function updateSkeleton(plr)
     
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid or humanoid.RigType ~= Enum.HumanoidRigType.R15 then 
-        -- ONLY SHOW SKELETON FOR R15 CHARACTERS
         for _, line in pairs(skeletons[plr]) do
             line.Visible = false
         end
         return 
     end
     
-    -- GET ALL R15 BODY PARTS
     local parts = {
         Head = character:FindFirstChild("Head"),
         UpperTorso = character:FindFirstChild("UpperTorso"),
@@ -262,7 +261,6 @@ end
 local function createHealthBar()
     local healthBar = {}
     
-    -- BLACK BACKGROUND BAR (SHOWS MAX HEALTH)
     healthBar.background = Drawing.new("Square")
     healthBar.background.Visible = false
     healthBar.background.Color = Color3.fromRGB(0, 0, 0)
@@ -270,7 +268,6 @@ local function createHealthBar()
     healthBar.background.Transparency = 1
     healthBar.background.Filled = true
     
-    -- GREEN HEALTH BAR (SHOWS CURRENT HEALTH)
     healthBar.health = Drawing.new("Square")
     healthBar.health.Visible = false
     healthBar.health.Color = Color3.fromRGB(0, 255, 0)
@@ -284,7 +281,7 @@ end
 local function updateHealthBar(plr)
     local character = plr.Character
     if not character or not healthBars[plr] then return end
-    if not shouldShowPlayer(plr) then 
+    if not shouldShowPlayer(plr) then
         healthBars[plr].background.Visible = false
         healthBars[plr].health.Visible = false
         return
@@ -306,23 +303,19 @@ local function updateHealthBar(plr)
     end
     
     local distance = math.clamp(rootPos.Z, 0.1, 1000)
-    local barHeight = (600 / distance) * 1.3 
-    local barWidth = 6 -- SMALLER WIDTH
-    local backgroundWidth = 8 
+    local barHeight = (600 / distance) * 1.3
+    local barWidth = 6
+    local backgroundWidth = 8
     
-    -- POSITION TO THE LEFT OF THE PLAYER
-    local barX = rootPos.X - (barHeight * 1.0 / 2) - backgroundWidth - 10 
+    local barX = rootPos.X - (barHeight * 1.0 / 2) - backgroundWidth - 10
     local barY = rootPos.Y - barHeight / 2
     
-    -- BACKGROUND BAR (BLACK - SHOWS MAX HEALTH WITH STROKE EFFECT)
     healthBars[plr].background.Size = Vector2.new(backgroundWidth, barHeight + 2)
-    healthBars[plr].background.Position = Vector2.new(barX - 1, barY - 1) 
+    healthBars[plr].background.Position = Vector2.new(barX - 1, barY - 1)
     healthBars[plr].background.Visible = true
     
-    -- HEALTH BAR (GREEN - SHOWS CURRENT HEALTH)
     local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
     
-    -- IF HEALTH IS 0, DON'T SHOW THE HEALTH BAR AT ALL
     if healthPercent <= 0 then
         healthBars[plr].health.Visible = false
     else
@@ -332,13 +325,12 @@ local function updateHealthBar(plr)
         healthBars[plr].health.Position = Vector2.new(barX, barY + (barHeight - healthBarHeight))
         healthBars[plr].health.Visible = true
         
-        -- COLOR CODING BASED ON HEALTH PERCENTAGE
         if healthPercent > 0.6 then
-            healthBars[plr].health.Color = Color3.fromRGB(0, 255, 0) -- GREEN
+            healthBars[plr].health.Color = Color3.fromRGB(0, 255, 0)
         elseif healthPercent > 0.3 then
-            healthBars[plr].health.Color = Color3.fromRGB(255, 255, 0) -- YELLOW
+            healthBars[plr].health.Color = Color3.fromRGB(255, 255, 0)
         else
-            healthBars[plr].health.Color = Color3.fromRGB(255, 0, 0) -- RED
+            healthBars[plr].health.Color = Color3.fromRGB(255, 0, 0)
         end
     end
 end
@@ -351,12 +343,64 @@ local function removeHealthBar(plr)
     end
 end
 
--- UPDATES FOR ESP
+-- NAME ESP FUNCTIONS
+local function createNameLabel()
+    local nameLabel = Drawing.new("Text")
+    nameLabel.Visible = false
+    nameLabel.Color = Color3.fromRGB(255, 255, 255)
+    nameLabel.Size = 16
+    nameLabel.Center = true
+    nameLabel.Outline = true
+    nameLabel.OutlineColor = Color3.fromRGB(0, 0, 0)
+    nameLabel.Font = Drawing.Fonts.UI
+    nameLabel.Transparency = 1
+    return nameLabel
+end
 
+local function updateNameLabel(plr)
+    local character = plr.Character
+    if not character or not nameLabels[plr] then return end
+    if not shouldShowPlayer(plr) then
+        nameLabels[plr].Visible = false
+        return
+    end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then 
+        nameLabels[plr].Visible = false
+        return 
+    end
+    
+    local rootPos, onScreen = camera:WorldToViewportPoint(hrp.Position)
+    if not onScreen then
+        nameLabels[plr].Visible = false
+        return
+    end
+    
+    local distance = math.clamp(rootPos.Z, 0.1, 1000)
+    local nameHeight = (600 / distance) * 1.3
+    
+    local nameX = rootPos.X
+    local nameY = rootPos.Y - nameHeight / 2 - 20
+    
+    nameLabels[plr].Position = Vector2.new(nameX, nameY)
+    nameLabels[plr].Text = plr.Name
+    nameLabels[plr].Color = getPlayerColor(plr)
+    nameLabels[plr].Visible = true
+end
+
+local function removeNameLabel(plr)
+    if nameLabels[plr] then
+        nameLabels[plr]:Remove()
+        nameLabels[plr] = nil
+    end
+end
+
+-- ESP UPDATE FUNCTIONS
 local function updateBoxes()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr ~= player then
-            if not shouldShowPlayer(plr) then -- NEW: Team filter check
+            if not shouldShowPlayer(plr) then
                 if boxes[plr] then
                     boxes[plr].Visible = false
                 end
@@ -376,8 +420,8 @@ local function updateBoxes()
             local distance = math.clamp(rootPos.Z, 0.1, 1000)
 
             if onScreen then
-                local sizeY = (1500 / distance) * 1.3 
-                local sizeX = sizeY * 1.0             
+                local sizeY = (1500 / distance) * 1.3
+                local sizeX = sizeY * 1.0
 
                 box.Size = Vector2.new(sizeX, sizeY)
                 box.Position = Vector2.new(rootPos.X - sizeX / 2, rootPos.Y - sizeY / 2)
@@ -403,7 +447,7 @@ end
 
 local function updateAllHighlights()
     for plr, highlight in pairs(highlights) do
-        if not shouldShowPlayer(plr) then 
+        if not shouldShowPlayer(plr) then
             removeHighlight(plr)
             continue
         end
@@ -428,7 +472,7 @@ local function updateTracers()
 
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-            if not shouldShowPlayer(plr) then -- NEW: Team filter check
+            if not shouldShowPlayer(plr) then
                 if beamTracers[plr] and beamTracers[plr].Beam then
                     beamTracers[plr].Beam.Enabled = false
                 end
@@ -483,8 +527,22 @@ local function updateHealthBars()
     end
 end
 
--- GUI SETUP
+local function updateNameESP()
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character then
+            if not nameLabels[plr] then
+                nameLabels[plr] = createNameLabel()
+            end
+            updateNameLabel(plr)
+        else
+            if nameLabels[plr] then
+                nameLabels[plr].Visible = false
+            end
+        end
+    end
+end
 
+-- GUI SETUP
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ESP_UI_4layy"
 ScreenGui.ResetOnSpawn = false
@@ -541,14 +599,14 @@ ScrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 ScrollFrame.BorderSizePixel = 0
 ScrollFrame.Position = UDim2.new(0, 10, 0, 35)
 ScrollFrame.Size = UDim2.new(1, -20, 1, -45)
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 320) 
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 280)
 ScrollFrame.ScrollBarThickness = 4
 ScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
--- BUTTONS
+-- BUTTON CREATION
 local function createButton(text)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35) 
+    btn.Size = UDim2.new(1, 0, 0, 35)
     btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.SourceSansBold
@@ -575,9 +633,13 @@ SkeletonToggle.Position = UDim2.new(0, 0, 0, 120)
 local HealthBarToggle = createButton("Health Bar")
 HealthBarToggle.Position = UDim2.new(0, 0, 0, 160)
 
+local NameToggle = createButton("Toggle Names")
+NameToggle.Position = UDim2.new(0, 0, 0, 200)
+NameToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+
 local TeamFilterToggle = createButton("Remove Friendly Team ESP")
-TeamFilterToggle.Position = UDim2.new(0, 0, 0, 200) -- MOVED TO BOTTOM
-TeamFilterToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- DEFAULT COLOR WHEN OFF
+TeamFilterToggle.Position = UDim2.new(0, 0, 0, 240)
+TeamFilterToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 
 -- BUTTON FUNCTIONS
 BoxToggle.MouseButton1Click:Connect(function()
@@ -614,7 +676,7 @@ end)
 TracerToggle.MouseButton1Click:Connect(function()
     tracerEnabled = not tracerEnabled
     if tracerEnabled then
-        TracerToggle.BackgroundColor3 = Color3.fromRGB(85, 170, 85) -- Green when ON
+        TracerToggle.BackgroundColor3 = Color3.fromRGB(85, 170, 85)
         for _, plr in pairs(Players:GetPlayers()) do
             if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
                 createBeam(plr)
@@ -673,6 +735,25 @@ HealthBarToggle.MouseButton1Click:Connect(function()
     end
 end)
 
+NameToggle.MouseButton1Click:Connect(function()
+    nameESPEnabled = not nameESPEnabled
+    if nameESPEnabled then
+        NameToggle.BackgroundColor3 = Color3.fromRGB(85, 170, 85)
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= player then
+                if not nameLabels[plr] then
+                    nameLabels[plr] = createNameLabel()
+                end
+            end
+        end
+    else
+        NameToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        for plr, nameLabel in pairs(nameLabels) do
+            nameLabel.Visible = false
+        end
+    end
+end)
+
 TeamFilterToggle.MouseButton1Click:Connect(function()
     teamFilterEnabled = not teamFilterEnabled
     
@@ -683,13 +764,11 @@ TeamFilterToggle.MouseButton1Click:Connect(function()
     end
     
     if chamsEnabled then
-        -- REMOVE CHAMS WHEN ENABLED
         for plr, highlight in pairs(highlights) do
             if not shouldShowPlayer(plr) then
                 removeHighlight(plr)
             end
         end
-        -- ADD WHEN DISABLED
         for _, plr in pairs(Players:GetPlayers()) do
             if plr ~= player and shouldShowPlayer(plr) and plr.Character then
                 addHighlight(plr)
@@ -706,7 +785,7 @@ MinimizeBtn.MouseButton1Click:Connect(function()
     MainFrame.Size = minimized and UDim2.new(0, 250, 0, 28) or UDim2.new(0, 250, 0, 340)
 end)
 
--- CREATE BEAMS AND SKELETONS ON RESPAWN
+-- RESPAWN HANDLERS
 player.CharacterAdded:Connect(function()
     wait(0.5)
     if tracerEnabled then
@@ -732,9 +811,18 @@ player.CharacterAdded:Connect(function()
             end
         end
     end
+    if nameESPEnabled then
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr ~= player then
+                if not nameLabels[plr] then
+                    nameLabels[plr] = createNameLabel()
+                end
+            end
+        end
+    end
 end)
 
--- RECREATE BEAMS, HIGHLIGHTS, AND SKELETONS
+-- PLAYER ADDED HANDLERS
 Players.PlayerAdded:Connect(function(plr)
     if plr == player then return end
     plr.CharacterAdded:Connect(function()
@@ -753,21 +841,23 @@ Players.PlayerAdded:Connect(function(plr)
                 healthBars[plr] = createHealthBar()
             end
         end
+        if nameESPEnabled then
+            if not nameLabels[plr] then
+                nameLabels[plr] = createNameLabel()
+            end
+        end
     end)
 end)
 
--- CLEANUP WHEN PLAYERS LEAVE
+-- PLAYER CLEANUP
 Players.PlayerRemoving:Connect(function(plr)
-    -- CLEAN UP BOXES
     if boxes[plr] then
         boxes[plr]:Remove()
         boxes[plr] = nil
     end
     
-    -- CLEAN UP HIGHLIGHTS
     removeHighlight(plr)
     
-    -- CLEAN UP TRACERS
     if beamTracers[plr] then
         local data = beamTracers[plr]
         if data.Beam then data.Beam:Destroy() end
@@ -776,14 +866,12 @@ Players.PlayerRemoving:Connect(function(plr)
         beamTracers[plr] = nil
     end
     
-    -- CLEAN UP SKELETONS
     removeSkeleton(plr)
-    
-    -- CLEAN UP HEALTH BARS
     removeHealthBar(plr)
+    removeNameLabel(plr)
 end)
 
--- FOR PLAYERS IN GAME ALREADY
+-- EXISTING PLAYERS
 for _, plr in pairs(Players:GetPlayers()) do
     if plr ~= player then
         plr.CharacterAdded:Connect(function()
@@ -802,11 +890,16 @@ for _, plr in pairs(Players:GetPlayers()) do
                     healthBars[plr] = createHealthBar()
                 end
             end
+            if nameESPEnabled then
+                if not nameLabels[plr] then
+                    nameLabels[plr] = createNameLabel()
+                end
+            end
         end)
     end
 end
 
--- LOOP UPDATE
+-- RENDER LOOPS
 boxConnection = RunService.RenderStepped:Connect(function()
     if boxESPEnabled then
         updateBoxes()
@@ -854,6 +947,16 @@ healthBarConnection = RunService.RenderStepped:Connect(function()
         for _, healthBar in pairs(healthBars) do
             healthBar.background.Visible = false
             healthBar.health.Visible = false
+        end
+    end
+end)
+
+nameESPConnection = RunService.RenderStepped:Connect(function()
+    if nameESPEnabled then
+        updateNameESP()
+    else
+        for _, nameLabel in pairs(nameLabels) do
+            nameLabel.Visible = false
         end
     end
 end)
