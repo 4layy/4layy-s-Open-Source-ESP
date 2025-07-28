@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/4layy/4layy-s-Open-Source-ESP/refs/heads/main/SCRIPT"))()
