@@ -576,7 +576,7 @@ local HealthBarToggle = createButton("Health Bar")
 HealthBarToggle.Position = UDim2.new(0, 0, 0, 160)
 
 local TeamFilterToggle = createButton("Remove Friendly Team ESP")
-TeamFilterToggle.Position = UDim2.new(0, 0, 0, 250) -- MOVED TO BOTTOM
+TeamFilterToggle.Position = UDim2.new(0, 0, 0, 280) -- MOVED TO BOTTOM
 TeamFilterToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- DEFAULT COLOR WHEN OFF
 
 -- BUTTON FUNCTIONS
