@@ -576,8 +576,8 @@ local HealthBarToggle = createButton("Health Bar")
 HealthBarToggle.Position = UDim2.new(0, 0, 0, 160)
 
 local TeamFilterToggle = createButton("Remove Friendly Team ESP")
-TeamFilterToggle.Position = UDim2.new(0, 0, 0, 285) -- MOVED TO BOTTOM
-TeamFilterToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- Default color when OFF
+TeamFilterToggle.Position = UDim2.new(0, 0, 0, 275) -- MOVED TO BOTTOM
+TeamFilterToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- DEFAULT COLOR WHEN OFF
 
 -- BUTTON FUNCTIONS
 BoxToggle.MouseButton1Click:Connect(function()
